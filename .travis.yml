@@ -12,7 +12,7 @@ install: |
 before_script: |
   python3 /home/travis/PublishBot/main.py --before
   export FILENAME="EAS-kernel-$(date +"%y%m%d")-$(date +"%H%M")-Wayne-GCC"
-  sed -i "s#-EAS-kernel#-$FILENAME-Q#g" arch/arm64/configs/platina_defconfig
+  sed -i "s#-EAS-kernel#-$FILENAME-Q#g" arch/arm64/configs/wayne-perf_defconfig
   export FILENAME="$FILENAME.zip"
 script: |
   make O=out ARCH=arm64 wayne-perf_defconfig

@@ -1,0 +1,32 @@
+dist: Bionic
+notifications:
+  webhooks: https://fathomless-fjord-24024.herokuapp.com/notify
+env:
+  - product_filename="EAS-kernel-*.zip" chat_id="-1001115967921"
+install: |
+  sudo apt-get install python3-setuptools python3-pip git flex bison build-essential zip zlib1g-dev gcc-multilib g++-multilib libc6-dev-i386 libx11-dev ccache libgl1-mesa-dev libxml2-utils xsltproc bc imagemagick libssl-dev mc libncurses5 python
+  git clone https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_aarch64_aarch64-linux-android-4.9.git -b lineage-17.1 ~/gcc64
+  git clone https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_arm_arm-linux-androideabi-4.9.git -b lineage-17.1 ~/gcc32
+  git clone https://github.com/RomashkaGang/PublishBot ~/PublishBot
+  pip3 install --user -r /home/travis/PublishBot/requirements.txt
+before_script: |
+  python3 /home/travis/PublishBot/main.py --before
+  export FILENAME="EAS-kernel-$(date +"%y%m%d")-$(date +"%H%M")-Wayne-GCC"
+  sed -i "s#-EAS-kernel#-$FILENAME-Q#g" arch/arm64/configs/platina_defconfig
+  export FILENAME="$FILENAME.zip"
+script: |
+  make O=out ARCH=arm64 wayne-perf_defconfig
+  make -j8 O=out ARCH=arm64 CROSS_COMPILE=~/gcc64/bin/aarch64-linux-android- CROSS_COMPILE_ARM32=~/gcc32/bin/arm-linux-androideabi-
+  git clone https://github.com/RomashkaGang/AnyKernel3 -b wayne ~/kernel_done
+  if [ -f "out/arch/arm64/boot/Image.gz-dtb" ]; then
+    cp out/arch/arm64/boot/Image.gz-dtb ~/kernel_done
+    cd ~/kernel_done
+    zip -r9 $FILENAME * -x .git $FILENAME
+  else
+    python3 /home/travis/PublishBot/main.py --after
+    exit 1
+  fi
+after_success: |
+  python3 /home/travis/PublishBot/main.py --after
+after_failure: |
+  python3 /home/travis/PublishBot/main.py --after

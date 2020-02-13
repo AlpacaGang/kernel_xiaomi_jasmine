@@ -11,13 +11,13 @@ install: |
   pip3 install --user -r /home/travis/PublishBot/requirements.txt
 before_script: |
   python3 /home/travis/PublishBot/main.py --before
-  export FILENAME="EAS-kernel-$(date +"%y%m%d")-$(date +"%H%M")-Wayne-GCC"
-  sed -i "s#-EAS-kernel#-$FILENAME-Q#g" arch/arm64/configs/wayne-perf_defconfig
+  export FILENAME="EAS-kernel-$(date +"%y%m%d")-$(date +"%H%M")-Jasmine-GCC"
+  sed -i "s#-EAS-kernel#-$FILENAME-Q#g" arch/arm64/configs/jasmine-perf_defconfig
   export FILENAME="$FILENAME.zip"
 script: |
   make O=out ARCH=arm64 wayne-perf_defconfig
   make -j8 O=out ARCH=arm64 CROSS_COMPILE=~/gcc64/bin/aarch64-linux-android- CROSS_COMPILE_ARM32=~/gcc32/bin/arm-linux-androideabi-
-  git clone https://github.com/RomashkaGang/AnyKernel3 -b wayne ~/kernel_done
+  git clone https://github.com/RomashkaGang/AnyKernel3 -b jasmine ~/kernel_done
   if [ -f "out/arch/arm64/boot/Image.gz-dtb" ]; then
     cp out/arch/arm64/boot/Image.gz-dtb ~/kernel_done
     cd ~/kernel_done
